@@ -6,13 +6,13 @@ import random
 
 pygame.init()
 
-screen = pygame.display.set_mode((1000,800))
-
+# Definitions of colors used in the game
 black = pygame.Color(20,20,20)
 grey = pygame.Color(200,200,200)
 full_black = pygame.Color(0,0,0)
 yellow = pygame.Color(171,179,54)
 
+# Counting all the neighbouring cells
 def count_neighbours(cells, x, y):
     count = 0
     for i in [x-10, x, x+10]:
@@ -33,7 +33,7 @@ def filter_border(cells):
             dc.add((x,y))
     return dc
 
-# draw cell on the screen and update the cell matrix
+# draw cell on the screen
 def draw_cell(screen, cells, pos, alive):
     actual_pos_x, actual_pos_y = (pos[1] // 10)*10, (pos[0] // 10)*10
     if alive: #if the cell is going to live it gets different color
@@ -45,6 +45,7 @@ def draw_cell(screen, cells, pos, alive):
         pygame.draw.rect(screen, full_black, (actual_pos_y, actual_pos_x, 10, 10))
         pygame.draw.rect(screen, black, (actual_pos_y + 1, actual_pos_x +1, 8, 8))
         return (actual_pos_x, actual_pos_y)
+
 # Main logic for the cellular automata
 def update(screen, cells, stopped):
     if not stopped:
@@ -80,31 +81,34 @@ def update(screen, cells, stopped):
         for x, y in new_cells:
             cells.add((y,x))
 
-cells = set()
-screen.fill(black)
-stopped = True
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                stopped = not stopped
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                pos = pygame.mouse.get_pos()
-                draw_cell(screen, cells, pos, True)
-                cells.add(((pos[0]//10)*10,(pos[1]//10)*10))
-                print(cells)
-            if event.button == 3:
-                pos = pygame.mouse.get_pos()
-                pygame.draw.rect(screen, full_black, ((pos[0]//10)*10, (pos[1]//10)*10, 10, 10))
-                cells.remove(((pos[0]//10)*10,(pos[1]//10)*10))
-                print(cells)
+def main():
+    screen = pygame.display.set_mode((1000,800))
+    cells = set()
+    screen.fill(black)
+    stopped = True
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    stopped = not stopped
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    pos = pygame.mouse.get_pos()
+                    draw_cell(screen, cells, pos, True)
+                    cells.add(((pos[0]//10)*10,(pos[1]//10)*10))
+                if event.button == 3:
+                    pos = pygame.mouse.get_pos()
+                    pygame.draw.rect(screen, full_black, ((pos[0]//10)*10, (pos[1]//10)*10, 10, 10))
+                    cells.remove(((pos[0]//10)*10,(pos[1]//10)*10))
+            pygame.display.update()
+
+        update(screen, cells, stopped)
+
         pygame.display.update()
+        time.sleep(0.1)
 
-    update(screen, cells, stopped)
-
-    pygame.display.update()
-    time.sleep(0.1)
+if __name__ == "__main__":
+    main()
